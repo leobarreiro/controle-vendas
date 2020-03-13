@@ -14,31 +14,31 @@ import br.com.ilegra.api.vendas.utils.BuilderTestUtils;
 import br.com.ilegra.api.vendas.utils.ExchangeTestUtils;
 
 @RunWith(SpringRunner.class)
-public class RegistroClientePredicateTest {
+public class RegistroVendedorPredicateTest {
 
-	@InjectMocks
-	private RegistroClientePredicate predicate;
-
-	private String registroClienteInvalido;
-	private String registroClienteValido;
+	private String registroVendedorInvalido;
+	private String registroVendedorValido;
 	private Exchange excConteudoValido;
 	private Exchange excConteudoInvalido;
 
+	@InjectMocks
+	private RegistroVendedorPredicate predicate;
+
 	@Before
 	public void setUp() throws Exception {
-		registroClienteInvalido = BuilderTestUtils.linhaRegistroCliente("997898000146", "777", "Cozinha");
-		registroClienteValido = BuilderTestUtils.linhaRegistroCliente("99789865000146", "Hamburgueria Da Brasa", "Cozinha");
-		excConteudoValido = ExchangeTestUtils.criarExchange(registroClienteValido);
-		excConteudoInvalido = ExchangeTestUtils.criarExchange(registroClienteInvalido);
+		registroVendedorInvalido = BuilderTestUtils.linhaRegistroVendedor("898551556", "Heber J Grant", 5000d);
+		registroVendedorValido = BuilderTestUtils.linhaRegistroVendedor("89855155602", "Heber J Grant", 7500d);
+		excConteudoValido = ExchangeTestUtils.criarExchange(registroVendedorValido);
+		excConteudoInvalido = ExchangeTestUtils.criarExchange(registroVendedorInvalido);
 	}
 
 	@Test
-	public void deveDarMatchComRegistroDeClienteValido() {
+	public void deveDarMatchComRegistroDeVendedorValido() {
 		assertTrue(predicate.matches(excConteudoValido));
 	}
 
 	@Test
-	public void naoDeveDarMatchComRegistroDeClienteInvalido() {
+	public void naoDeveDarMatchComRegistroDeVendedorInvalido() {
 		assertFalse(predicate.matches(excConteudoInvalido));
 	}
 

@@ -6,6 +6,7 @@ import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.apache.camel.test.spring.CamelSpringRunner;
 import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 
@@ -26,6 +27,11 @@ public class ControleVendasRouteTest extends CamelTestSupport {
 
 	protected RoutesBuilder[] createRouteBuilders() throws Exception {
 		return new RoutesBuilder[] { controleVendasRoute };
+	}
+	
+	@Test
+	public void testRoute() {
+		
 	}
 
 }

@@ -1,0 +1,74 @@
+version: "3.7"
+services:
+  app:
+    image: @project.artifactId@:@project.version@
+    ports: 
+      - 8082:8082
+      - 9092:9092
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 256M
+        reservations:
+          cpus: '0.20'
+          memory: 128M
+      mode: replicated
+      replicas: 1
+    depends_on: 
+      - mongodb
+      - postgres
+    networks:
+      - frontend
+      - backend
+    links: 
+      - mongodb:mongodb
+      - postgres:postgres
+  postgres:
+    image: postgres:11.2-alpine
+    networks:
+      - backend
+    volumes:
+      - postgresdata:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=RoosTarpals831.
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 256M
+        reservations:
+          cpus: '0.20'
+          memory: 128M
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+  mongodb:
+    image: bitnami/mongodb:4.1
+    environment:
+      - MONGODB_USERNAME=leitor-arquivo
+      - MONGODB_PASSWORD=RoosTarpals831.
+      - MONGODB_DATABASE=leitor-arquivo
+    networks:
+      - backend
+    volumes:
+      - mongodbdata:/bitnami
+    deploy:
+      resources:
+        limits:
+          cpus: '0.20'
+          memory: 128M
+        reservations:
+          cpus: '0.20'
+          memory: 128M
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+networks:
+  frontend:
+  backend:
+volumes: 
+  postgresdata: 
+  mongodbdata: 

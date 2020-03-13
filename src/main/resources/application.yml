@@ -1,0 +1,40 @@
+app:
+  messages:
+    log-welcome: Reading directory. Searching new files.
+  path:
+    in: in
+    out: out
+  routes:
+    processa-linhas: direct:processa-linhas
+    encoding: direct:codificacao-arquivo-valida
+    spliter: direct:spliter
+    joiner: direct:joiner
+    consolidador: direct:consolidador
+  routes-id:
+    entrada: routeEntradaId
+    processa-linhas: processaLinhasId
+    encoding: routeEncodingId
+    spliter: routeSpliterId
+    joiner: routeJoinerId
+    consolidador: routeConsolidadorId
+    saida: routeSaidaId
+logging:
+  level:
+    br.com.ilegra.api: DEBUG
+    org.springframework.boot.context: DEBUG
+server:
+  compression:
+    enabled: true
+  port: 8081
+  servlet: 
+    context-path: /controle-vendas
+management:
+  server:
+    port: 9091
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+spring:
+  messages:
+    basename: i18n/messages

@@ -6,12 +6,14 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Predicate;
 import org.springframework.stereotype.Component;
 
+import br.com.ilegra.api.vendas.utils.Constants;
+
 @Component
 public class RegistroVendedorPredicate implements Predicate {
 
 	@Override
 	public boolean matches(Exchange exchange) {
-		return Pattern.matches("^(001)ç[0-9]{11}ç[a-zA-Z ]{3,}ç[0-9]{1,}$", exchange.getIn().getBody(String.class));
+		return Pattern.matches(Constants.VENDEDOR_PATTERN, exchange.getIn().getBody(String.class));
 	}
 
 }

@@ -26,7 +26,7 @@ public class ConsolidadorBean {
 	private Double piorSoma = null;
 
 	public void transformConteudo(Exchange exchange, @Body List<Exchange> excs) {
-		montaConteudoArquivoSaida(exchange, montaResumoArquivo(excs));
+		montarConteudoArquivoSaida(exchange, montaResumoArquivo(excs));
 		defineNomeArquivo(exchange, excs.get(0));
 	}
 
@@ -49,67 +49,73 @@ public class ConsolidadorBean {
 		exchange.getIn().setHeader(Exchange.FILE_NAME, nomeOriginal.concat(FilenameUtils.EXTENSION_SEPARATOR_STR).concat(EXTENSAO_SAIDA));
 	}
 
-	private void montaConteudoArquivoSaida(Exchange exchange, ResumoArquivo resumo) {
-		calculaIdVendaMaisCara(resumo.getVendas());
-		calculaPiorVendedor(resumo.getVendas());
+	private void montarConteudoArquivoSaida(Exchange exchange, ResumoArquivo resumo) {
+		contabilizarVendas(resumo.getVendas());
+		contabilizarPerformanceVendedores(resumo.getVendas());
 		String texto = "Quantidade de Clientes: {0}\nQuantidade de Vendedores: {1}\nID da Venda mais cara: {2}\nPior vendedor: {3}";
 		String saida = MessageFormat.format(texto, Integer.toString(resumo.getClientes().size()), Integer.toString(resumo.getVendedores().size()), idMaiorVenda, piorVendedor);
 		exchange.getIn().setBody(saida);
 	}
 
-	private void calculaIdVendaMaisCara(List<Venda> vendas) {
-		idMaiorVenda = null;
-		maiorValor = 0d;
+	private void contabilizarVendas(List<Venda> vendas) {
 		Map<String, Double> mapVendas = new HashMap<>();
 		vendas.stream().forEach(venda -> {
-			Double soma = venda.getItemsVenda().stream()
-					.map(item -> (item.getPreco().doubleValue() * item.getQuantidade()))
-					.reduce(0d, Double::sum);
-			mapVendas.put(venda.getSaleId(), soma);
+			mapVendas.put(venda.getSaleId(), somarItensVenda(venda));
 		});
+		definirVendaMaisCara(mapVendas);
+	}
 
+	private void definirVendaMaisCara(Map<String, Double> mapVendas) {
+		idMaiorVenda = null;
+		maiorValor = 0d;
 		mapVendas.keySet().forEach(saleId -> {
 			if (mapVendas.get(saleId) > maiorValor) {
 				idMaiorVenda = saleId;
 				maiorValor = mapVendas.get(saleId);
 			}
 		});
-
 		if (idMaiorVenda == null) {
 			idMaiorVenda = NENHUMA_VENDA;
 		}
 	}
 
-	public void calculaPiorVendedor(List<Venda> vendas) {
-		piorSoma = null;
-		piorVendedor = null;
+	private Double somarItensVenda(Venda venda) {
+		return venda.getItensVenda().stream()
+				.map(item -> (item.getPreco().doubleValue() * item.getQuantidade()))
+				.reduce(0d, Double::sum);
+	}
+
+	private void contabilizarPerformanceVendedores(List<Venda> vendas) {
 		Map<String, Double> mapVendedorTotais = new HashMap<>();
 		vendas.stream().forEach(venda -> {
-			Double soma = venda.getItemsVenda().stream()
-					.map(item -> (item.getPreco().doubleValue() * item.getQuantidade()))
-					.reduce(0d, Double::sum);
-			if (mapVendedorTotais.containsKey(venda.getSalesmanName())) {
-				mapVendedorTotais.put(venda.getSalesmanName(), mapVendedorTotais.get(venda.getSalesmanName()) + soma);
-			} else {
-				mapVendedorTotais.put(venda.getSalesmanName(), soma);
-			}
+			acumularSomaAoVendedor(mapVendedorTotais, venda);
 		});
+		definirPiorVendedor(mapVendedorTotais);
+	}
 
+	private void acumularSomaAoVendedor(Map<String, Double> mapVendedorTotais, Venda venda) {
+		Double soma = somarItensVenda(venda);
+		if (mapVendedorTotais.containsKey(venda.getSalesmanName())) {
+			mapVendedorTotais.put(venda.getSalesmanName(), mapVendedorTotais.get(venda.getSalesmanName()) + soma);
+		} else {
+			mapVendedorTotais.put(venda.getSalesmanName(), soma);
+		}
+	}
+
+	private void definirPiorVendedor(Map<String, Double> mapVendedorTotais) {
+		piorSoma = null;
+		piorVendedor = null;
 		mapVendedorTotais.entrySet().stream().forEach(vt -> {
 			if (piorSoma == null) {
 				piorVendedor = vt.getKey();
 				piorSoma = vt.getValue();
-			} else {
-				if (piorSoma > vt.getValue()) {
-					piorVendedor = vt.getKey();
-					piorSoma = vt.getValue();
-				}
+			} else if (piorSoma > vt.getValue()) {
+				piorVendedor = vt.getKey();
+				piorSoma = vt.getValue();
 			}
 		});
-
 		if (piorVendedor == null) {
 			piorVendedor = NENHUMA_VENDA;
 		}
 	}
-
 }

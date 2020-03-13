@@ -17,7 +17,7 @@ public class Venda implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private String saleId;
-	private List<ItemVenda> itemsVenda;
+	private List<ItemVenda> itensVenda;
 	private String salesmanName;
 
 }

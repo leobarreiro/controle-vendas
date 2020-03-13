@@ -18,7 +18,7 @@ public class ItemVendaConverter implements SimpleConverter<ItemVenda> {
 		return ItemVenda.builder()
 				.itemId(Integer.valueOf(parts.get(0)))
 				.quantidade(Integer.valueOf(parts.get(1)))
-				.preco(BigDecimal.valueOf(Double.valueOf(parts.get(2))))
+				.preco(BigDecimal.valueOf(Double.valueOf(parts.get(2))).setScale(2))
 				.build();
 	}
 

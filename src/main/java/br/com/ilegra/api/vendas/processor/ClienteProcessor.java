@@ -13,7 +13,7 @@ public class ClienteProcessor implements Processor {
 
 	@Autowired
 	private ClienteConverter converter;
-	
+
 	@Override
 	public void process(Exchange exchange) throws Exception {
 		exchange.getIn().setBody(converter.convert(exchange.getIn().getBody(String.class)), Cliente.class);

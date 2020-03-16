@@ -2,8 +2,11 @@ package br.com.ilegra.api.vendas.utils;
 
 import java.math.BigDecimal;
 import java.text.MessageFormat;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.camel.Exchange;
 import org.apache.commons.lang3.StringUtils;
 
 import br.com.ilegra.api.vendas.domain.Cliente;
@@ -67,6 +70,16 @@ public class BuilderTestUtils {
 
 	public static String linhaRegistroItemVenda(Integer idItem, Integer quantidade, double valorUnitario) {
 		return MessageFormat.format("{0}-{1}-{2}", Integer.toString(idItem), Integer.toString(quantidade), BigDecimal.valueOf(valorUnitario).setScale(2).toString());
+	}
+
+	public static String conteudoMinimoArquivo() {
+		return linhaRegistroVendedorPadrao().concat("\n").concat(linhaRegistroClientePadrao());
+	}
+
+	public static Map<String, Object> headerFileLength() {
+		Map<String, Object> mapHeaders = new HashMap<>();
+		mapHeaders.put(Exchange.FILE_LENGTH, 61);
+		return mapHeaders;
 	}
 
 }

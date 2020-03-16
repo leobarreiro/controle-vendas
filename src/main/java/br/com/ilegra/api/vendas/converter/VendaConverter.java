@@ -2,7 +2,9 @@ package br.com.ilegra.api.vendas.converter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
@@ -22,10 +24,18 @@ public class VendaConverter implements SimpleConverter<Venda> {
 
 	@Override
 	public Venda convert(String conteudo) {
-		if (!Pattern.matches(Constants.VENDA_PATTERN, conteudo)) {
+		Pattern pattern = Pattern.compile(Constants.VENDA_SPLIT);
+		Matcher matcher = pattern.matcher(conteudo);
+		List<String> parts = new LinkedList<>();
+		while (matcher.find()) {
+			String part = matcher.group(0);
+			if (!part.equals(Constants.SEPARATOR)) {
+				parts.add(part);
+			}
+		}
+		if (parts.size() != 4) {
 			throw new ControleVendasException("Registro de Venda está fora do padrão esperado");
 		}
-		List<String> parts = Arrays.asList(StringUtils.split(conteudo, "ç"));
 		List<ItemVenda> itens = new ArrayList<>();
 		String itensStr = StringUtils.replaceEach(parts.get(2), new String[] { "[", "]" }, new String[] { "", "" });
 		Arrays.asList(itensStr.split(",")).stream().forEach(it -> {

@@ -16,6 +16,7 @@ import br.com.ilegra.api.vendas.predicate.TamanhoArquivoValido;
 import br.com.ilegra.api.vendas.processor.ClienteProcessor;
 import br.com.ilegra.api.vendas.processor.VendaProcessor;
 import br.com.ilegra.api.vendas.processor.VendedorProcessor;
+import br.com.ilegra.api.vendas.utils.Constants;
 
 @Component
 public class ControleVendasRoute extends RouteBuilder {
@@ -56,63 +57,63 @@ public class ControleVendasRoute extends RouteBuilder {
 	public void configure() throws Exception {
 
 		from(config.getRouteEntrada())
-				.routeId("{{app.routes-id.entrada}}")
+				.routeId(Constants.ROUTEID_ENTRADA)
 				.threads(3, 3, "threadVendas")
 				.log(LoggingLevel.INFO, "Iniciando processamento...")
-				.to("{{app.routes.encoding}}")
+				.to(Constants.ROUTE_ENCODING)
 				.end();
 
-		from("{{app.routes.encoding}}")
-				.routeId("{{app.routes-id.encoding}}")
+		from(Constants.ROUTE_ENCODING)
+				.routeId(Constants.ROUTEID_ENCODING)
 				.choice()
 				.when(isTamanhoArquivoValido)
 				.log("Validado tamanho do arquivo")
-				.to("{{app.routes.spliter}}")
+				.to(Constants.ROUTE_SPLITER)
 				.otherwise()
 				.log("Arquivo vazio.")
 				.endChoice()
 				.end();
 
-		from("{{app.routes.spliter}}")
-				.routeId("{{app.routes-id.spliter}}")
+		from(Constants.ROUTE_SPLITER)
+				.routeId(Constants.ROUTEID_SPLITER)
 				.split(body().regexTokenize(WRAP_LINE_REGEX), aggregateFileLines)
-				.to("{{app.routes.processa-linhas}}")
+				.to(Constants.ROUTE_PROCESSA_LINHAS)
 				.end();
 
-		from("{{app.routes.processa-linhas}}")
-				.routeId("{{app.routes-id.processa-linhas}}")
+		from(Constants.ROUTE_PROCESSA_LINHAS)
+				.routeId(Constants.ROUTEID_PROCESSA_LINHAS)
 				.choice()
 				.when(isVendedor)
 				.log("Processando registro de Vendedor")
 				.process(vendedorProcessor)
-				.to("{{app.routes.joiner}}")
+				.to(Constants.ROUTE_JOINER)
 				.when(isCliente)
 				.log("Processando registro de Cliente")
 				.process(clienteProcessor)
-				.to("{{app.routes.joiner}}")
+				.to(Constants.ROUTE_JOINER)
 				.when(isVenda)
 				.log("Processando registro de Venda")
 				.process(vendaProcessor)
-				.to("{{app.routes.joiner}}")
+				.to(Constants.ROUTE_JOINER)
 				.otherwise()
 				.log("Detectado um registro não identificado ou inválido")
 				.endChoice()
 				.end();
 
-		from("{{app.routes.joiner}}")
-				.routeId("{{app.routes-id.joiner}}")
+		from(Constants.ROUTE_JOINER)
+				.routeId(Constants.ROUTEID_JOINER)
 				.aggregate(constant(true), new GroupedExchangeAggregationStrategy())
 				.completionTimeout(500L)
-				.to("{{app.routes.consolidador}}")
+				.to(Constants.ROUTE_CONSOLIDADOR)
 				.end();
 
-		from("{{app.routes.consolidador}}")
-				.routeId("{{app.routes-id.consolidador}}")
+		from(Constants.ROUTE_CONSOLIDADOR)
+				.routeId(Constants.ROUTEID_CONSOLIDADOR)
 				.log("Consolidando Dados...")
 				.bean(consolidadorBean)
 				.convertBodyTo(byte[].class, "UTF-8")
 				.log("Exportando dados de saída.")
-				.id("consolidadorId")
+				.id(Constants.ROUTEID_CONSOLIDADOR)
 				.to(config.getRouteSaida())
 				.endParent();
 

@@ -13,7 +13,7 @@ public class RegistroClientePredicate implements Predicate {
 
 	@Override
 	public boolean matches(Exchange exchange) {
-		return Pattern.matches(Constants.CLIENTE_PATTERN, exchange.getIn().getBody(String.class));
+		return Pattern.matches(Constants.REGISTRO_CLIENTE_PATTERN, exchange.getIn().getBody(String.class));
 	}
 
 }

@@ -1,6 +1,5 @@
 package br.com.ilegra.api.vendas.converter;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;

@@ -1,7 +1,6 @@
 package br.com.ilegra.api.vendas.processor;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.any;
 import static org.mockito.Mockito.verify;
 
 import java.util.HashMap;
@@ -13,7 +12,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Spy;
-import org.mockito.internal.matchers.Any;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import br.com.ilegra.api.vendas.converter.VendedorConverter;

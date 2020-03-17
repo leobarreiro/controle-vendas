@@ -1,6 +1,9 @@
 package br.com.ilegra.api.vendas.route;
 
+import static org.mockito.Mockito.when;
+
 import org.apache.camel.EndpointInject;
+import org.apache.camel.ProducerTemplate;
 import org.apache.camel.RoutesBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
@@ -11,6 +14,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
+import org.springframework.test.context.ActiveProfiles;
 
 import br.com.ilegra.api.vendas.aggregation.AggregateFileLines;
 import br.com.ilegra.api.vendas.bean.ConsolidadorBean;
@@ -24,14 +28,12 @@ import br.com.ilegra.api.vendas.processor.VendaProcessor;
 import br.com.ilegra.api.vendas.processor.VendedorProcessor;
 import br.com.ilegra.api.vendas.utils.BuilderTestUtils;
 import br.com.ilegra.api.vendas.utils.Constants;
-import br.com.ilegra.api.vendas.utils.RouteBuildersTest;
 
 @RunWith(CamelSpringRunner.class)
+@ActiveProfiles("test")
 public class ControleVendasRouteTest extends CamelTestSupport {
 
 	private static final String MOCK_OUTPUT = "mock:output";
-
-	private static final String URI_MOCK_OUTPUT = MOCK_OUTPUT;
 
 	@Spy
 	private ControleVendasConfig config;
@@ -66,36 +68,28 @@ public class ControleVendasRouteTest extends CamelTestSupport {
 	@InjectMocks
 	private ControleVendasRoute controleVendasRoute;
 
-	// private Exchange exchange;
-
-	private void doMocks() throws Exception {
-		RouteBuildersTest.createInterceptedRoute(template.getCamelContext(),
-				Constants.ROUTEID_ENCODING, URI_MOCK_OUTPUT);
-	}
-
 	@Before
 	public void setUp() throws Exception {
 		super.setUp();
-		doMocks();
 	}
 
-	@EndpointInject(uri = URI_MOCK_OUTPUT)
-	private MockEndpoint mockEndpointResult;
+	@EndpointInject(uri = MOCK_OUTPUT)
+	private MockEndpoint mockEndpoint;
+
+	@EndpointInject(uri = Constants.ROUTE_ENCODING)
+	private ProducerTemplate mockRouteEncoding;
 
 	@Override
 	protected RoutesBuilder[] createRouteBuilders() throws Exception {
-		return new RoutesBuilder[] { controleVendasRoute, 
-					RouteBuildersTest.createSimpleMockRoute(Constants.ROUTEID_ENCODING, MOCK_OUTPUT) };
+		return new RoutesBuilder[] { controleVendasRoute };
 	}
 
 	@Test
 	public void naoDeveAcusarErroParaArquivoComConteudo() throws Exception {
-		// when(cooperativaService.buscarCooperativasAtivas()).thenReturn(new ArrayList<Integer>());
+		when(config.getRouteSaida()).thenReturn(MOCK_OUTPUT);
 		template.sendBodyAndHeaders(Constants.ROUTE_ENCODING, BuilderTestUtils.conteudoMinimoArquivo(), BuilderTestUtils.headerFileLength());
-		mockEndpointResult.getName();
-		mockEndpointResult.assertExchangeReceived(0);
-
-		// mockEndpointResult.expectedHeaderReceived(Constants.ERROS_PROPERTY, ExportacaoDebitoRoute.NENHUMA_COOPERATIVA_ATIVA);
+		mockEndpoint.getName();
+		mockEndpoint.assertIsSatisfied();
 	}
 
 }

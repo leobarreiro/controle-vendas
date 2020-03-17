@@ -2,11 +2,13 @@ package br.com.ilegra.api.vendas.utils;
 
 import java.math.BigDecimal;
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.camel.Exchange;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import br.com.ilegra.api.vendas.domain.Cliente;
@@ -53,6 +55,14 @@ public class BuilderTestUtils {
 
 	public static String linhaRegistroVendedor(String cpf, String nome, double salario) {
 		return MessageFormat.format("001ç{0}ç{1}ç{2}", cpf, nome, BigDecimal.valueOf(salario).setScale(2).toString());
+	}
+
+	public static Venda vendaPadrao() {
+		return Venda.builder().saleId("01").salesmanName(RandomStringUtils.randomAlphabetic(5, 20)).itensVenda(itemVendaPadrao()).build();
+	}
+
+	public static List<ItemVenda> itemVendaPadrao() {
+		return Arrays.asList(itemVenda(1, 3, 14.5d), itemVenda(2, 5, 5.30d));
 	}
 
 	public static Venda venda(String saleId, String vendedor, List<ItemVenda> itensVenda) {
